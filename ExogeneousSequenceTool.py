@@ -6,6 +6,7 @@ from RGTools.ExogeneousSequences import ExogeneousSequences
 
 from ExogeneousSequenceAssemble import ExogeneousSequenceAssemble
 from SignalTrack import SignalTrack
+from Mutagenesis import Mutagenesis
 
 class ExogeneousSequenceTool:
     @staticmethod
@@ -20,6 +21,9 @@ class ExogeneousSequenceTool:
         parser_argmax = subparsers.add_parser("argmax")
         SignalTrack.set_parser_argmax(parser_argmax)
 
+        parser_mutagenesis = subparsers.add_parser("mutagenesis")
+        Mutagenesis.set_parser_mutagenesis(parser_mutagenesis)
+
     @staticmethod
     def main(args: argparse.Namespace):
         if args.subcommand == "add_adapter":
@@ -28,6 +32,8 @@ class ExogeneousSequenceTool:
             ExogeneousSequenceAssemble.concat_main(args)
         elif args.subcommand == "argmax":
             SignalTrack.argmax_main(args)
+        elif args.subcommand == "mutagenesis":
+            Mutagenesis.mutagenesis_main(args)
         else:
             raise ValueError(f"Subcommand {args.subcommand} not found.")
 
