@@ -13,10 +13,15 @@ class ExogeneousSequenceTool:
         parser_add_adapter = subparsers.add_parser("add_adapter")
         ExogeneousSequenceAssemble.set_parser_add_adapter(parser_add_adapter)
 
+        parser_concat = subparsers.add_parser("concat")
+        ExogeneousSequenceAssemble.set_parser_concat(parser_concat)
+
     @staticmethod
     def main(args: argparse.Namespace):
         if args.subcommand == "add_adapter":
             ExogeneousSequenceAssemble.add_adapter_main(args)
+        elif args.subcommand == "concat":
+            ExogeneousSequenceAssemble.concat_main(args)
         else:
             raise ValueError(f"Subcommand {args.subcommand} not found.")
 

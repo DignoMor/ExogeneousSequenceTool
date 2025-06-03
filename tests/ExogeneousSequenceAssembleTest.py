@@ -50,5 +50,32 @@ class ExogeneousSequenceAssembleTest(unittest.TestCase):
         self.assertEqual(output_es.get_region_bed_table().get_chrom_names()[1], "seq2")
         self.assertEqual(output_es.get_all_region_seqs()[1], "AAATTGATTT")
 
+    def test_concat(self):
+        args = argparse.Namespace(
+            fasta5=os.path.join(self.test_dir, "fasta5.fasta"),
+            fasta3=os.path.join(self.test_dir, "fasta3.fasta"),
+            output_fasta=os.path.join(self.test_dir, "output.fasta"),
+            id_method="5_3",
+        )
+
+        ExogeneousSequences.write_sequences_to_fasta(
+            ["seq51", "seq52", "seq53"],
+            ["ATCG", "TTGA", "CCAT"],
+            args.fasta5,
+        )
+        
+        ExogeneousSequences.write_sequences_to_fasta(
+            ["seq31", "seq32", "seq33"],
+            ["ATCG", "TTGA", "CCAT"],
+            args.fasta3,
+        )
+
+        ExogeneousSequenceAssemble.concat_main(args)
+
+        output_es = ExogeneousSequences(args.output_fasta)
+        self.assertEqual(output_es.get_region_bed_table().get_chrom_names()[1], "seq52_seq32")
+        self.assertEqual(output_es.get_all_region_seqs()[1], "TTGATTGA")
+        
+        
 if __name__ == "__main__":
     unittest.main()
