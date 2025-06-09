@@ -18,8 +18,9 @@ class ExogeneousSequenceTool:
         parser_concat = subparsers.add_parser("concat")
         ExogeneousSequenceAssemble.set_parser_concat(parser_concat)
 
-        parser_argmax = subparsers.add_parser("argmax")
-        SignalTrack.set_parser_argmax(parser_argmax)
+        # Add track_dim_reduction subcommand
+        parser_track_dim_reduction = subparsers.add_parser("track_dim_reduction")
+        SignalTrack.set_parser_track_dim_reduction(parser_track_dim_reduction)
 
         parser_mutagenesis = subparsers.add_parser("mutagenesis")
         Mutagenesis.set_parser_mutagenesis(parser_mutagenesis)
@@ -30,8 +31,8 @@ class ExogeneousSequenceTool:
             ExogeneousSequenceAssemble.add_adapter_main(args)
         elif args.subcommand == "concat":
             ExogeneousSequenceAssemble.concat_main(args)
-        elif args.subcommand == "argmax":
-            SignalTrack.argmax_main(args)
+        elif args.subcommand == "track_dim_reduction":
+            SignalTrack.track_dim_reduction_main(args)
         elif args.subcommand == "mutagenesis":
             Mutagenesis.mutagenesis_main(args)
         else:
