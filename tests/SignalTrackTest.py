@@ -20,12 +20,6 @@ class SignalTrackTest(unittest.TestCase):
         super().tearDown()
     
     def _create_test_data(self, args):
-        ExogeneousSequences.write_sequences_to_fasta(
-            ["seq1", "seq2", "seq3"],
-            ["ATCG", "TTGA", "CCAT"],
-            args.fasta,
-        )
-
         tracks = np.zeros((3, 10))
         tracks[0, 3:7] = 1
         tracks[0, 5] = 2
@@ -38,7 +32,6 @@ class SignalTrackTest(unittest.TestCase):
 
     def _get_test_args(self, search_range=None):
         return argparse.Namespace(
-            fasta=os.path.join(self.test_dir, "fasta.fasta"),
             input_npy=os.path.join(self.test_dir, "input.npy"),
             output_npy=os.path.join(self.test_dir, "output.npy"),
             search_range=search_range,
