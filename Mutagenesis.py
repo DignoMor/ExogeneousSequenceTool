@@ -32,12 +32,12 @@ class Mutagenesis:
         output_seqs = []
         output_seq_ids = []
 
+        all_elem_seqs = input_es.get_all_region_seqs()
+        all_elem_ids = input_es.get_region_bed_table().get_chrom_names()
+        all_target_seqs = target_es.get_all_region_seqs()
+        all_target_ids = target_es.get_region_bed_table().get_chrom_names()
         if input_es.get_num_regions() == target_es.get_num_regions():
             # elem-wise operation
-            all_elem_seqs = input_es.get_all_region_seqs()
-            all_elem_ids = input_es.get_region_bed_table().get_chrom_names()
-            all_target_seqs = target_es.get_all_region_seqs()
-
             for i in range(input_es.get_num_regions()):
                 elem_seq = all_elem_seqs[i]
                 target_seq = all_target_seqs[i]
@@ -45,13 +45,9 @@ class Mutagenesis:
 
                 output_seq = elem_seq[:mut_locs[i, 0]] + target_seq + elem_seq[mut_locs[i, 0] + target_len:]
                 output_seqs.append(output_seq)
-                output_seq_ids.append(all_elem_ids[i] + "_mut_" + str(i) + "_" + target_seq)
+                output_seq_ids.append(all_elem_ids[i] + "_mut_" + all_target_ids[i])
         else:
             # broadcast operation
-            all_elem_seqs = input_es.get_all_region_seqs()
-            all_elem_ids = input_es.get_region_bed_table().get_chrom_names()
-            all_target_seqs = target_es.get_all_region_seqs()
-
             for target_seq in all_target_seqs:
                 for i in range(input_es.get_num_regions()):
                     elem_seq = all_elem_seqs[i]
@@ -59,7 +55,7 @@ class Mutagenesis:
 
                     output_seq = elem_seq[:mut_locs[i, 0]] + target_seq + elem_seq[mut_locs[i, 0] + target_len:]
                     output_seqs.append(output_seq)
-                    output_seq_ids.append(all_elem_ids[i] + "_mut_" + str(i) + "_" + target_seq)
+                    output_seq_ids.append(all_elem_ids[i] + "_mut_" + all_target_ids[i])
             
         ExogeneousSequences.write_sequences_to_fasta(output_seq_ids, output_seqs, args.output_fasta)
 

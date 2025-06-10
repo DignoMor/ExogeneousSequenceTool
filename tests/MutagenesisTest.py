@@ -46,7 +46,7 @@ class MutagenesisTest(unittest.TestCase):
         Mutagenesis.mutagenesis_main(args)
 
         output_es = ExogeneousSequences(args.output_fasta)
-        self.assertEqual(output_es.get_region_bed_table().get_chrom_names()[1], "seq2_mut_1_A")
+        self.assertEqual(output_es.get_region_bed_table().get_chrom_names()[1], "seq2_mut_mut2")
         self.assertEqual(output_es.get_all_region_seqs()[1], "TAGA")
 
 
