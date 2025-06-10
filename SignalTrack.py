@@ -1,3 +1,4 @@
+
 import numpy as np
 
 from RGTools.ExogeneousSequences import ExogeneousSequences
@@ -66,3 +67,33 @@ class SignalTrack:
     @staticmethod
     def track_dim_reduction_main(args):
         SignalTrack._track_dim_reduction(args, args.operation)
+    
+    @staticmethod
+    def set_parser_gen_track(parser):
+        operation_parser = parser.add_subparsers(dest="operation", required=True)
+        parser_single_loc = operation_parser.add_parser("single_loc")
+        ExogeneousSequences.set_parser_exogeneous_sequences(parser_single_loc)
+        parser_single_loc.add_argument("--loc", 
+                                       help="Location to generate the track for.",
+                                       required=True,
+                                       type=int,
+                                       )
+        parser_single_loc.add_argument("--output_npy",
+                                       help="Path to the output stat npy file.",
+                                       required=True,
+                                       )
+
+    @staticmethod
+    def _gen_track(args, operation):
+        if operation == "single_loc":
+            es = ExogeneousSequences(args.fasta)
+
+            signal_track = np.ones((es.get_num_regions(), 1), 
+                                   dtype=np.int64, 
+                                   ) * args.loc
+            es.load_region_anno_from_arr("loc", signal_track)
+            es.save_anno_npy("loc", args.output_npy)
+
+    @staticmethod
+    def gen_track_main(args):
+        SignalTrack._gen_track(args, args.operation)

@@ -12,18 +12,30 @@ class ExogeneousSequenceTool:
     @staticmethod
     def set_parser(parser: argparse.ArgumentParser):
         subparsers = parser.add_subparsers(dest="subcommand")
-        parser_add_adapter = subparsers.add_parser("add_adapter")
+        parser_add_adapter = subparsers.add_parser("add_adapter", 
+                                                   help="Add adapter to the exogeneous sequences.", 
+                                                   )
         ExogeneousSequenceAssemble.set_parser_add_adapter(parser_add_adapter)
 
-        parser_concat = subparsers.add_parser("concat")
+        parser_concat = subparsers.add_parser("concat", 
+                                              help="Concatenate the exogeneous sequences.", 
+                                              )
         ExogeneousSequenceAssemble.set_parser_concat(parser_concat)
 
-        # Add track_dim_reduction subcommand
-        parser_track_dim_reduction = subparsers.add_parser("track_dim_reduction")
+        parser_track_dim_reduction = subparsers.add_parser("track_dim_reduction", 
+                                                          help="Reduce the dimension of the signal track.", 
+                                                          )
         SignalTrack.set_parser_track_dim_reduction(parser_track_dim_reduction)
 
-        parser_mutagenesis = subparsers.add_parser("mutagenesis")
+        parser_mutagenesis = subparsers.add_parser("mutagenesis", 
+                                                   help="Mutate the exogeneous sequences on a given base location.", 
+                                                   )
         Mutagenesis.set_parser_mutagenesis(parser_mutagenesis)
+
+        parser_gen_track = subparsers.add_parser("gen_track", 
+                                                 help="Generate a signal track.", 
+                                                 )
+        SignalTrack.set_parser_gen_track(parser_gen_track)
 
     @staticmethod
     def main(args: argparse.Namespace):
@@ -35,6 +47,8 @@ class ExogeneousSequenceTool:
             SignalTrack.track_dim_reduction_main(args)
         elif args.subcommand == "mutagenesis":
             Mutagenesis.mutagenesis_main(args)
+        elif args.subcommand == "gen_track":
+            SignalTrack.gen_track_main(args)
         else:
             raise ValueError(f"Subcommand {args.subcommand} not found.")
 

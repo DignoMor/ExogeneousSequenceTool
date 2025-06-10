@@ -19,7 +19,7 @@ class SignalTrackTest(unittest.TestCase):
             shutil.rmtree(self.test_dir)
         super().tearDown()
     
-    def _create_test_data(self, args):
+    def _create_track_dim_reduction_test_data(self, args):
         tracks = np.zeros((3, 10))
         tracks[0, 3:7] = 1
         tracks[0, 5] = 2
@@ -30,7 +30,7 @@ class SignalTrackTest(unittest.TestCase):
         np.save(args.input_npy, tracks)
         return tracks
 
-    def _get_test_args(self, search_range=None):
+    def _get_track_dim_reduction_test_args(self, search_range=None):
         return argparse.Namespace(
             input_npy=os.path.join(self.test_dir, "input.npy"),
             output_npy=os.path.join(self.test_dir, "output.npy"),
@@ -38,9 +38,9 @@ class SignalTrackTest(unittest.TestCase):
         )
 
     def test_track_dim_reduction_argmax(self):
-        args = self._get_test_args()
+        args = self._get_track_dim_reduction_test_args()
         args.operation = "argmax"
-        tracks = self._create_test_data(args)
+        tracks = self._create_track_dim_reduction_test_data(args)
         
         SignalTrack.track_dim_reduction_main(args)
 
@@ -51,9 +51,9 @@ class SignalTrackTest(unittest.TestCase):
         self.assertEqual(output_track[2, 0], 5)  # max at index 5
 
     def test_track_dim_reduction_max(self):
-        args = self._get_test_args()
+        args = self._get_track_dim_reduction_test_args()
         args.operation = "max"
-        tracks = self._create_test_data(args)
+        tracks = self._create_track_dim_reduction_test_data(args)
         
         SignalTrack.track_dim_reduction_main(args)
 
@@ -64,9 +64,9 @@ class SignalTrackTest(unittest.TestCase):
         self.assertEqual(output_track[2, 0], 2)  # max value is 2
 
     def test_track_dim_reduction_argmin(self):
-        args = self._get_test_args()
+        args = self._get_track_dim_reduction_test_args()
         args.operation = "argmin"
-        tracks = self._create_test_data(args)
+        tracks = self._create_track_dim_reduction_test_data(args)
         
         SignalTrack.track_dim_reduction_main(args)
 
@@ -77,9 +77,9 @@ class SignalTrackTest(unittest.TestCase):
         self.assertEqual(output_track[2, 0], 0)  # min at index 0
 
     def test_track_dim_reduction_min(self):
-        args = self._get_test_args()
+        args = self._get_track_dim_reduction_test_args()
         args.operation = "min"
-        tracks = self._create_test_data(args)
+        tracks = self._create_track_dim_reduction_test_data(args)
         
         SignalTrack.track_dim_reduction_main(args)
 
@@ -90,9 +90,9 @@ class SignalTrackTest(unittest.TestCase):
         self.assertEqual(output_track[2, 0], 0)  # min value is 0
 
     def test_track_dim_reduction_with_search_range(self):
-        args = self._get_test_args(search_range="2,6")
+        args = self._get_track_dim_reduction_test_args(search_range="2,6")
         args.operation = "argmax"
-        tracks = self._create_test_data(args)
+        tracks = self._create_track_dim_reduction_test_data(args)
         
         SignalTrack.track_dim_reduction_main(args)
 
@@ -102,6 +102,27 @@ class SignalTrackTest(unittest.TestCase):
         self.assertEqual(output_track[1, 0], 4)  # max in range at index 4
         self.assertEqual(output_track[2, 0], 5)  # max in range at index 5
 
+    def test_gen_track_single_loc(self):
+        args = argparse.Namespace(
+            fasta=os.path.join(self.test_dir, "test.fasta"),
+            loc=5,
+            output_npy=os.path.join(self.test_dir, "output.npy"),
+        )
+        args.operation = "single_loc"
+
+        ExogeneousSequences.write_sequences_to_fasta( 
+            ["seq1", "seq2", "seq3"],
+            ["ATCG", "TTGA", "CCAT"],
+            args.fasta,
+        )
+
+        SignalTrack.gen_track_main(args)
+
+        output_track = np.load(args.output_npy)
+        self.assertEqual(output_track.shape, (3, 1))
+        self.assertEqual(output_track[0, 0], 5)
+        self.assertEqual(output_track[1, 0], 5)
+        self.assertEqual(output_track[2, 0], 5)
 
 
 
