@@ -1,4 +1,6 @@
 
+import pandas as pd
+
 from RGTools.ExogeneousSequences import ExogeneousSequences
 
 class ExogeneousSequenceAssemble:
@@ -14,6 +16,10 @@ class ExogeneousSequenceAssemble:
         parser_concat = subparsers.add_parser("concat", 
                                              help="Concatenate the exogeneous sequences.")
         ExogeneousSequenceAssemble._set_parser_concat(parser_concat)
+
+        parser_barcode = subparsers.add_parser("barcode", 
+                                               help="Add barcode to the exogeneous sequences.")
+        ExogeneousSequenceAssemble._set_parser_barcode(parser_barcode)
 
     @staticmethod
     def _set_parser_add_adapter(parser):
@@ -56,6 +62,41 @@ class ExogeneousSequenceAssemble:
         parser.add_argument("--id_method",
                             help="Method to use to generate the id of the output fasta file.",
                             choices=["5", "3", "5_3"], 
+                            default="5_3",
+                            )
+
+    @staticmethod
+    def _set_parser_barcode(parser):
+        parser.add_argument("--barcode_fasta", 
+                            help="Path to the barcode fasta file.",
+                            required=True,
+                            )
+
+        parser.add_argument("--input_fasta", 
+                            help="Path to the input fasta file. ",
+                            required=True,
+                            action="append",
+                            )
+        
+        parser.add_argument("--input_class", 
+                            help="Class of the input fasta file.",
+                            required=True,
+                            action="append",
+                            )
+        
+        parser.add_argument("--output_fasta", 
+                            help="Path to the output fasta file.",
+                            required=True,
+                            )
+        
+        parser.add_argument("--metadata_path",
+                            help="Path to the output metadata file.",
+                            required=True,
+                            )
+        
+        parser.add_argument("--barcode_method",
+                            help="Method to use to add barcode to the exogeneous sequences.",
+                            choices=["5", "3", "5_3"],
                             default="5_3",
                             )
 
@@ -123,11 +164,62 @@ class ExogeneousSequenceAssemble:
         ExogeneousSequences.write_sequences_to_fasta(output_seq_ids, output_seqs, args.output_fasta)
 
     @staticmethod
+    def _barcode(args):
+        barcode_es = ExogeneousSequences(args.barcode_fasta)
+
+        input_es_list = [ExogeneousSequences(f) for f in args.input_fasta]
+        input_elem_nums = [es.get_num_regions() for es in input_es_list]
+        barcode_seqs = barcode_es.get_all_region_seqs()
+
+        total_elem_num = sum(input_elem_nums)
+        if total_elem_num > barcode_es.get_num_regions():
+            raise ValueError("Total number of elements in the input fasta files is greater than the number of regions in the barcode fasta file.")
+        
+        metadata_df = pd.DataFrame(columns=["barcode", "class", "elem_id", "elem_seq"])
+        output_seqs = []
+        output_seq_ids = []
+        
+        for elem_class, input_es in zip(args.input_class, input_es_list):
+            used_barcode_list = []
+            for elem_seq, elem_id in zip(input_es.get_all_region_seqs(), input_es.get_region_bed_table().get_chrom_names()):
+                barcode_seq = barcode_seqs[len(output_seq_ids)]
+                if args.barcode_method == "5":
+                    oseq = barcode_seq + elem_seq
+                elif args.barcode_method == "3":
+                    oseq = elem_seq + barcode_seq
+                elif args.barcode_method == "5_3":
+                    oseq = barcode_seq + elem_seq + barcode_seq
+                else:
+                    raise ValueError(f"Invalid barcode method: {args.barcode_method}")
+                
+                output_seqs.append(oseq)
+                output_seq_ids.append(elem_id)
+                used_barcode_list.append(barcode_seq)
+
+            
+            new_metadata = pd.DataFrame({"barcode": used_barcode_list, 
+                                         "class": [elem_class] * len(used_barcode_list), 
+                                         "elem_id": output_seq_ids[-len(used_barcode_list):], 
+                                         "elem_seq": output_seqs[-len(used_barcode_list):], 
+                                         })
+            metadata_df = pd.concat([metadata_df, new_metadata])
+
+        ExogeneousSequences.write_sequences_to_fasta(output_seq_ids, 
+                                                     output_seqs, 
+                                                     args.output_fasta, 
+                                                     )
+        metadata_df.to_csv(args.metadata_path, 
+                           index=False,
+                           )
+
+    @staticmethod
     def main(args):
         if args.operation == "add_adapter":
             ExogeneousSequenceAssemble._add_adapter(args)
         elif args.operation == "concat":
             ExogeneousSequenceAssemble._concat(args)
+        elif args.operation == "barcode":
+            ExogeneousSequenceAssemble._barcode(args)
         else:
             raise ValueError(f"Unknown operation: {args.operation}")
 
