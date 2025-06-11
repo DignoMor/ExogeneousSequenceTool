@@ -48,14 +48,14 @@ class Mutagenesis:
                 output_seq_ids.append(all_elem_ids[i] + "_mut_" + all_target_ids[i])
         else:
             # broadcast operation
-            for target_seq in all_target_seqs:
+            for target_seq_id, target_seq in zip(all_target_ids, all_target_seqs):
                 for i in range(input_es.get_num_regions()):
                     elem_seq = all_elem_seqs[i]
                     target_len = len(target_seq)
 
                     output_seq = elem_seq[:mut_locs[i, 0]] + target_seq + elem_seq[mut_locs[i, 0] + target_len:]
                     output_seqs.append(output_seq)
-                    output_seq_ids.append(all_elem_ids[i] + "_mut_" + all_target_ids[i])
+                    output_seq_ids.append(all_elem_ids[i] + "_mut_" + target_seq_id)
             
         ExogeneousSequences.write_sequences_to_fasta(output_seq_ids, output_seqs, args.output_fasta)
 
