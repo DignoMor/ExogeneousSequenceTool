@@ -18,8 +18,8 @@ class ExogeneousSequenceAssembleTest(unittest.TestCase):
             shutil.rmtree(self.test_dir)
 
     def test_add_adapter(self):
-
         args = argparse.Namespace(
+            operation="add_adapter",
             fasta=os.path.join(self.test_dir, "test.fasta"),
             left_adapter_fasta=os.path.join(self.test_dir, "left_adapter.fasta"),
             right_adapter_fasta=os.path.join(self.test_dir, "right_adapter.fasta"),
@@ -44,7 +44,7 @@ class ExogeneousSequenceAssembleTest(unittest.TestCase):
             args.right_adapter_fasta,
         )
 
-        ExogeneousSequenceAssemble.add_adapter_main(args)
+        ExogeneousSequenceAssemble.main(args)
 
         output_es = ExogeneousSequences(args.output_fasta)
         self.assertEqual(output_es.get_region_bed_table().get_chrom_names()[1], "seq2")
@@ -52,6 +52,7 @@ class ExogeneousSequenceAssembleTest(unittest.TestCase):
 
     def test_concat(self):
         args = argparse.Namespace(
+            operation="concat",
             fasta5=os.path.join(self.test_dir, "fasta5.fasta"),
             fasta3=os.path.join(self.test_dir, "fasta3.fasta"),
             output_fasta=os.path.join(self.test_dir, "output.fasta"),
@@ -70,7 +71,7 @@ class ExogeneousSequenceAssembleTest(unittest.TestCase):
             args.fasta3,
         )
 
-        ExogeneousSequenceAssemble.concat_main(args)
+        ExogeneousSequenceAssemble.main(args)
 
         output_es = ExogeneousSequences(args.output_fasta)
         self.assertEqual(output_es.get_region_bed_table().get_chrom_names()[1], "seq52_seq32")

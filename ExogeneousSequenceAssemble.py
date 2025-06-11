@@ -3,7 +3,20 @@ from RGTools.ExogeneousSequences import ExogeneousSequences
 
 class ExogeneousSequenceAssemble:
     @staticmethod
-    def set_parser_add_adapter(parser):
+    def set_parser(parser):
+        """Set up parser for exogeneous sequence assembly operations."""
+        subparsers = parser.add_subparsers(dest="operation", required=True)
+        
+        parser_add_adapter = subparsers.add_parser("add_adapter", 
+                                                  help="Add adapter to the exogeneous sequences.")
+        ExogeneousSequenceAssemble._set_parser_add_adapter(parser_add_adapter)
+        
+        parser_concat = subparsers.add_parser("concat", 
+                                             help="Concatenate the exogeneous sequences.")
+        ExogeneousSequenceAssemble._set_parser_concat(parser_concat)
+
+    @staticmethod
+    def _set_parser_add_adapter(parser):
         ExogeneousSequences.set_parser_exogeneous_sequences(parser)
 
         parser.add_argument("--left_adapter_fasta", 
@@ -23,7 +36,7 @@ class ExogeneousSequenceAssemble:
                             )
 
     @staticmethod
-    def set_parser_concat(parser):
+    def _set_parser_concat(parser):
         parser.add_argument("--fasta5", 
                             help="Path to the 5' fasta file.",
                             required=True,
@@ -47,8 +60,7 @@ class ExogeneousSequenceAssemble:
                             )
 
     @staticmethod
-    def add_adapter_main(args):
-        
+    def _add_adapter(args):
         if args.left_adapter_fasta:
             left_adapter_seqs = ExogeneousSequences(args.left_adapter_fasta).get_all_region_seqs()
             if len(left_adapter_seqs) != 1:
@@ -80,7 +92,7 @@ class ExogeneousSequenceAssemble:
         ExogeneousSequences.write_sequences_to_fasta(output_seq_ids, output_seqs, args.output_fasta)
 
     @staticmethod
-    def concat_main(args):
+    def _concat(args):
         fasta5_es = ExogeneousSequences(args.fasta5)
         fasta3_es = ExogeneousSequences(args.fasta3)
 
@@ -109,4 +121,13 @@ class ExogeneousSequenceAssemble:
             output_seq_ids.append(oid)
 
         ExogeneousSequences.write_sequences_to_fasta(output_seq_ids, output_seqs, args.output_fasta)
+
+    @staticmethod
+    def main(args):
+        if args.operation == "add_adapter":
+            ExogeneousSequenceAssemble._add_adapter(args)
+        elif args.operation == "concat":
+            ExogeneousSequenceAssemble._concat(args)
+        else:
+            raise ValueError(f"Unknown operation: {args.operation}")
 

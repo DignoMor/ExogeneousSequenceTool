@@ -12,15 +12,11 @@ class ExogeneousSequenceTool:
     @staticmethod
     def set_parser(parser: argparse.ArgumentParser):
         subparsers = parser.add_subparsers(dest="subcommand")
-        parser_add_adapter = subparsers.add_parser("add_adapter", 
-                                                   help="Add adapter to the exogeneous sequences.", 
-                                                   )
-        ExogeneousSequenceAssemble.set_parser_add_adapter(parser_add_adapter)
-
-        parser_concat = subparsers.add_parser("concat", 
-                                              help="Concatenate the exogeneous sequences.", 
-                                              )
-        ExogeneousSequenceAssemble.set_parser_concat(parser_concat)
+        
+        parser_assemble = subparsers.add_parser("assemble", 
+                                               help="Assemble exogeneous sequences.", 
+                                               )
+        ExogeneousSequenceAssemble.set_parser(parser_assemble)
 
         parser_track_dim_reduction = subparsers.add_parser("track_dim_reduction", 
                                                           help="Reduce the dimension of the signal track.", 
@@ -39,10 +35,8 @@ class ExogeneousSequenceTool:
 
     @staticmethod
     def main(args: argparse.Namespace):
-        if args.subcommand == "add_adapter":
-            ExogeneousSequenceAssemble.add_adapter_main(args)
-        elif args.subcommand == "concat":
-            ExogeneousSequenceAssemble.concat_main(args)
+        if args.subcommand == "assemble":
+            ExogeneousSequenceAssemble.main(args)
         elif args.subcommand == "track_dim_reduction":
             SignalTrack.track_dim_reduction_main(args)
         elif args.subcommand == "mutagenesis":
