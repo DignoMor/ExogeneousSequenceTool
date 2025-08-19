@@ -34,6 +34,11 @@ class ExogeneousSequenceTool:
                                                  )
         SignalTrack.set_parser_gen_track(parser_gen_track)
 
+        parser_print_stat = subparsers.add_parser("print_stat", 
+                                                   help="Print the region stat.", 
+                                                   )
+        SignalTrack.set_parser_print_stat(parser_print_stat)
+
         parser_motif_search = subparsers.add_parser("motif_search", 
                                                    help="Search for motifs in the exogeneous sequences.", 
                                                    )
@@ -51,6 +56,8 @@ class ExogeneousSequenceTool:
             SignalTrack.gen_track_main(args)
         elif args.subcommand == "motif_search":
             Motif.motif_search_main(args)
+        elif args.subcommand == "print_stat":
+            SignalTrack.print_stat_main(args)
         else:
             raise ValueError(f"Subcommand {args.subcommand} not found.")
 

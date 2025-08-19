@@ -1,4 +1,6 @@
 
+import sys
+
 import numpy as np
 
 from RGTools.ExogeneousSequences import ExogeneousSequences
@@ -97,3 +99,20 @@ class SignalTrack:
     @staticmethod
     def gen_track_main(args):
         SignalTrack._gen_track(args, args.operation)
+
+    @staticmethod
+    def set_parser_print_stat(parser):
+        parser.add_argument("--input_npy",
+                            help="Path to the region stat npy file.",
+                            required=True,
+                            )
+    
+    @staticmethod
+    def print_stat_main(args):
+        region_stat = np.load(args.input_npy)
+
+        if not region_stat.shape[1]== 1:
+            raise ValueError("The second dimension of the region stat must be 1.")
+
+        for s in region_stat[:, 0]:
+            print(s)

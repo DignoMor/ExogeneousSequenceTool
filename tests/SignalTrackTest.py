@@ -2,8 +2,11 @@ import unittest
 import argparse
 import shutil
 import os
+import io
 
 import numpy as np
+
+from unittest.mock import patch
 
 from RGTools.ExogeneousSequences import ExogeneousSequences
 from SignalTrack import SignalTrack
@@ -124,5 +127,23 @@ class SignalTrackTest(unittest.TestCase):
         self.assertEqual(output_track[1, 0], 5)
         self.assertEqual(output_track[2, 0], 5)
 
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_print_stat(self, mock_stdout):
+        args = argparse.Namespace(
+            input_npy=os.path.join(self.test_dir, "input.npy"),
+        )
+        args.operation = "print_stat"
+
+        np.save(args.input_npy, np.array([1, 2, 3, 4, 5]).reshape(-1, 1))
+        
+        SignalTrack.print_stat_main(args)
+        self.assertEqual(mock_stdout.getvalue(), "1\n2\n3\n4\n5\n")
+
+        # test with signal track
+        args.input_npy = os.path.join(self.test_dir, "input_signal_track.npy")
+        np.save(args.input_npy, np.array([1, 2, 3, 4, 5] * 2).reshape(-1, 2))
+
+        with self.assertRaises(ValueError):
+            SignalTrack.print_stat_main(args)
 
 
